@@ -1,0 +1,1 @@
+docker run -d -p 8098:8098 -p 8087:8087 --name riak-kv basho/riak-kv
