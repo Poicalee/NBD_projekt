@@ -1,14 +1,19 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog
-import json
+from tkinter import ttk, messagebox
 import uuid
 from datetime import datetime
 import re
 
 
-class UserInterface():
+# noinspection PyArgumentList
+class UserInterface:
     def __init__(self, root, db):
         """Inicjalizacja interfejsu użytkownika systemu księgowego."""
+        self.users_tree = None
+        self.customers_tree = None
+        self.customers_tree = None
+        self.transactions_tree = None
+        self.invoices_tree = None
         self.root = root
         self.db = db
         self.root.title("System Zarządzania Księgowością")
@@ -165,6 +170,7 @@ class UserInterface():
         # Załadowanie początkowych danych
         self.refresh_customers()
 
+    # ==================== Metody dla klientów ====================
     def refresh_customers(self):
         """Odświeżenie listy klientów."""
         # Wyczyszczenie listy
@@ -201,7 +207,7 @@ class UserInterface():
         """Wyświetlnie szczegółów klienta."""
         selected = self.customers_tree.selection()
         if not selected:
-            messagebox.showwarning("Ostrzeżenie","Wybierz klienta do wyswietlnia")
+            messagebox.showwarning("Ostrzeżenie", "Wybierz klienta do wyswietlnia")
             return
 
         customer_id = self.customers_tree.item(selected[0])["values"][0]
@@ -209,17 +215,12 @@ class UserInterface():
         customer = self.db.read("customers", key)
 
         if customer:
-            #Tworzenie listy szczegółów
-            details = []
-            details.append(f"ID klienta: {customer_id}")
-            details.append(f"Nazwa: {customer.get('name', '')}")
-            details.append(f"Email: {customer.get('email', '')}")
-            details.append(f"Telefon: {customer.get('phone', '')}")
-            details.append(f"Adres: {customer.get('address', '')}")
-            details.append(f"Miasto: {customer.get('city', '')}")
-            details.append(f"Kod pocztowy: {customer.get('postal_code', '')}")
-            details.append(f"NIP: {customer.get('tax_id', '')}")
-            details.append(f"Data utworzenia: {customer.get('created_at', '')}")
+            # Tworzenie listy szczegółów
+            details = [f"ID klienta: {customer_id}", f"Nazwa: {customer.get('name', '')}",
+                       f"Email: {customer.get('email', '')}", f"Telefon: {customer.get('phone', '')}",
+                       f"Adres: {customer.get('address', '')}", f"Miasto: {customer.get('city', '')}",
+                       f"Kod pocztowy: {customer.get('postal_code', '')}", f"NIP: {customer.get('tax_id', '')}",
+                       f"Data utworzenia: {customer.get('created_at', '')}"]
 
             messagebox.showinfo("Szczegóły klienta", "\n".join(details))
         else:
@@ -275,11 +276,11 @@ class UserInterface():
         operations_frame.pack(fill=tk.X, pady=10)
 
         # Przyciski operacji CRUD
-        # ttk.Button(operations_frame, text="Dodaj użytkownika", command=self.create_user).pack(side=tk.LEFT, padx=5)
-        # ttk.Button(operations_frame, text="Szczegóły użytkownika", command=self.view_user).pack(side=tk.LEFT, padx=5)
-        # ttk.Button(operations_frame, text="Edytuj użytkownika", command=self.edit_user).pack(side=tk.LEFT, padx=5)
-        # ttk.Button(operations_frame, text="Usuń użytkownika", command=self.delete_user).pack(side=tk.LEFT, padx=5)
-        # ttk.Button(operations_frame, text="Odśwież", command=self.refresh_users).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Dodaj użytkownika", command=self.create_user).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Szczegóły użytkownika", command=self.view_user).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Edytuj użytkownika", command=self.edit_user).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Usuń użytkownika", command=self.delete_user).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Odśwież", command=self.refresh_users).pack(side=tk.LEFT, padx=5)
 
         # Lista użytkowników
         list_frame = ttk.LabelFrame(frame, text="Lista użytkowników")
@@ -304,7 +305,101 @@ class UserInterface():
         self.users_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Załadowanie początkowych danych
-        # self.refresh_users()
+        self.refresh_users()
+
+    # ==================== Metody dla użytkowników ====================
+
+    def refresh_users(self):
+        """Odświeżenie listy użytkowników."""
+        # Wyczyszczenie listy
+        for item in self.users_tree.get_children():
+            self.users_tree.delete(item)
+
+        keys = self.db.list_keys("users")
+
+        for key in keys:
+            user = self.db.read("users", key)
+            if user:
+                status = "Aktywny" if user.get("is_acitve", False) else "Niekontywny"
+                self.users_tree.insert("", tk.END, values=(
+                    key.replace("user:", ""),
+                    user.get("username", ""),
+                    user.get("email", ""),
+                    user.get("role", ""),
+                    status
+                ))
+
+    def create_user(self):
+        """Utworzenie nowego użytkownika"""
+        dialog = self.UserDialog(self.root, "Dodaj nowego użytkownika")
+        if dialog.result:
+            user_id = dialog.result.get("user_id")
+            key = f"user/{user_id}"
+            if self.db.create("users", key, dialog.result):
+                messagebox.showinfo("Sukces", "Użytkownik został dodany pomyślnie")
+                self.refresh_users()
+            else:
+                messagebox.showerror("Błąd", "Nie udało się dodać użytkownika")
+
+    def view_user(self):
+        """Wyświetlenie szczegółów użytkownika."""
+        selected = self.users_tree.selection()
+        if not selected:
+            messagebox.showwarning("Ostrzeżenie", "Wybierz użytkownika do wyświetlenia")
+            return
+
+        user_id = self.users_tree.item(selected[0])["values"][0]
+        key = f"user:{user_id}"
+        user = self.db.read("users", key)
+
+        if user:
+            # Tworzenie listy szczegółów
+            details = [f"ID użytkownika: {user_id}", f"Nazwa użytkownika: {user.get('username', '')}",
+                       f"Email: {user.get('email', '')}", f"Rola: {user.get('role', '')}",
+                       f"Status: {'Aktywny' if user.get('is_active', False) else 'Nieaktywny'}"]
+
+            messagebox.showinfo("Szczegóły użytkownika", "\n".join(details))
+        else:
+            messagebox.showerror("Błąd", "Nie znaleziono użytkownika")
+
+    def edit_user(self):
+        """Edycja istniejącego użytkownika."""
+        selected = self.users_tree.selection()
+        if not selected:
+            messagebox.showwarning("Ostrzeżenie", "Wybierz użytkownika do edycji")
+            return
+
+        user_id = self.users_tree.item(selected[0])["values"][0]
+        key = f"user:{user_id}"
+        user = self.db.read("users", key)
+
+        if user:
+            dialog = self.UserDialog(self.root, "Edytuj użytkownika", user)
+            if dialog.result:
+                if self.db.update("users", key, dialog.result):
+                    messagebox.showinfo("Sukces", "Użytkownik został zaktualizowany pomyślnie")
+                    self.refresh_users()
+                else:
+                    messagebox.showerror("Błąd", "Nie udało się zaktualizować użytkownika")
+        else:
+            messagebox.showerror("Błąd", "Nie znaleziono użytkownika")
+
+    def delete_user(self):
+        """Usunięcie użytkownika."""
+        selected = self.users_tree.selection()
+        if not selected:
+            messagebox.showwarning("Ostrzeżenie", "Wybierz użytkownika do usunięcia")
+            return
+
+        user_id = self.users_tree.item(selected[0])["values"][0]
+        key = f"user:{user_id}"
+
+        if messagebox.askyesno("Potwierdzenie", "Czy na pewno chcesz usunąć tego użytkownika?"):
+            if self.db.delete("users", key):
+                messagebox.showinfo("Sukces", "Użytkownik został usunięty pomyślnie")
+                self.refresh_users()
+            else:
+                messagebox.showerror("Błąd", "Nie udało się usunąć użytkownika")
 
     # ==================== Metody dla faktur ====================
 
@@ -531,15 +626,13 @@ class UserInterface():
 
         if transaction:
             # Tworzenie listy szczegółów
-            details = []
-            details.append(f"ID transakcji: {transaction_id}")
-            details.append(f"ID faktury: {transaction.get('invoice_id', '')}")
-            details.append(f"Data transakcji: {transaction.get('transaction_date', '')}")
-            details.append(f"Kwota: {transaction.get('amount', 0)}")
-            details.append(f"Metoda płatności: {transaction.get('payment_method', '')}")
-            details.append(f"Status: {transaction.get('status', '')}")
-            details.append(f"Numer referencyjny: {transaction.get('reference_number', '')}")
-            details.append(f"Data utworzenia: {transaction.get('created_at', '')}")
+            details = [f"ID transakcji: {transaction_id}", f"ID faktury: {transaction.get('invoice_id', '')}",
+                       f"Data transakcji: {transaction.get('transaction_date', '')}",
+                       f"Kwota: {transaction.get('amount', 0)}",
+                       f"Metoda płatności: {transaction.get('payment_method', '')}",
+                       f"Status: {transaction.get('status', '')}",
+                       f"Numer referencyjny: {transaction.get('reference_number', '')}",
+                       f"Data utworzenia: {transaction.get('created_at', '')}"]
 
             messagebox.showinfo("Szczegóły transakcji", "\n".join(details))
         else:
@@ -1135,7 +1228,7 @@ class InvoiceDialog:
             return
 
         try:
-            amount = float(self.amount.get())
+            float(self.amount.get())
         except ValueError:
             messagebox.showerror("Błąd", "Nieprawidłowa wartość kwoty faktury.")
             return

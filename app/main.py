@@ -4,6 +4,7 @@ from database import RiakDatabase
 from ui import UserInterface
 
 
+
 def test_connection(host, port):
     """Sprawdzenie połączenia z Riak."""
     try:
