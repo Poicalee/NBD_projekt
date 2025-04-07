@@ -32,7 +32,7 @@ class UserInterface():
         # Inicjalizacja interfejsów dla każdego typu dokumentu
         self.init_invoices_ui()
         self.init_transactions_ui()
-        # self.init_customers_ui()
+        self.init_customers_ui()
         self.init_users_ui()
 
     def init_invoices_ui(self):
@@ -134,7 +134,7 @@ class UserInterface():
 
         # Przyciski operacji CRUD
         ttk.Button(operations_frame, text="Dodaj klienta", command=self.create_customer).pack(side=tk.LEFT, padx=5)
-        ttk.Button(operations_frame, text="Szczegóły klienta", command=self.view_customer).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Szczegóły klienta", command=self.view_customers).pack(side=tk.LEFT, padx=5)
         ttk.Button(operations_frame, text="Edytuj klienta", command=self.edit_customer).pack(side=tk.LEFT, padx=5)
         ttk.Button(operations_frame, text="Usuń klienta", command=self.delete_customer).pack(side=tk.LEFT, padx=5)
         ttk.Button(operations_frame, text="Odśwież", command=self.refresh_customers).pack(side=tk.LEFT, padx=5)
@@ -166,16 +166,16 @@ class UserInterface():
         self.refresh_customers()
 
     def refresh_customers(self):
-        """Odświeżenie listy klientów"""
-        #Wyczyszczenie listy
+        """Odświeżenie listy klientów."""
+        # Wyczyszczenie listy
         for item in self.customers_tree.get_children():
             self.customers_tree.delete(item)
 
-        #Pobranie kluczy klientów
+        # Pobranie kluczy klientów
         keys = self.db.list_keys("customers")
 
         for key in keys:
-            customer = self.db.get_customer("customers",key)
+            customer = self.db.read("customers", key)
             if customer:
                 self.customers_tree.insert("", tk.END, values=(
                     key.replace("customer:", ""),
@@ -187,15 +187,82 @@ class UserInterface():
 
     def create_customer(self):
         """Utworzenie nowego klienta."""
-        dialog = self.CustomerDialog(self.root,"Dodaj nowego klienta")
+        dialog = self.CustomerDialog(self.root, "Dodaj nowego klienta")
         if dialog.result:
             customer_id = dialog.result.get("customer_id")
-            key = f"customers/{customer_id}"
-            if self.db.create("customers", key. dialog.result):
-                messagebox.showinfo("Sukces","Klient został dodany pomyślnie")
+            key = f"customer:{customer_id}"
+            if self.db.create("customers", key, dialog.result):
+                messagebox.showinfo("Sukces", "Klient został dodany pomyślnie")
                 self.refresh_customers()
             else:
-                messagebox.showerror("Błąd","Nie udało się dodac klienta")
+                messagebox.showerror("Błąd", "Nie udało się dodać klienta")
+
+    def view_customers(self):
+        """Wyświetlnie szczegółów klienta."""
+        selected = self.customers_tree.selection()
+        if not selected:
+            messagebox.showwarning("Ostrzeżenie","Wybierz klienta do wyswietlnia")
+            return
+
+        customer_id = self.customers_tree.item(selected[0])["values"][0]
+        key = f"customers/{customer_id}"
+        customer = self.db.read("customers", key)
+
+        if customer:
+            #Tworzenie listy szczegółów
+            details = []
+            details.append(f"ID klienta: {customer_id}")
+            details.append(f"Nazwa: {customer.get('name', '')}")
+            details.append(f"Email: {customer.get('email', '')}")
+            details.append(f"Telefon: {customer.get('phone', '')}")
+            details.append(f"Adres: {customer.get('address', '')}")
+            details.append(f"Miasto: {customer.get('city', '')}")
+            details.append(f"Kod pocztowy: {customer.get('postal_code', '')}")
+            details.append(f"NIP: {customer.get('tax_id', '')}")
+            details.append(f"Data utworzenia: {customer.get('created_at', '')}")
+
+            messagebox.showinfo("Szczegóły klienta", "\n".join(details))
+        else:
+            messagebox.showerror("Błąd", "Nie znaleziono klienta")
+
+    def edit_customer(self):
+        """Edycja istniejącego klienta."""
+        selected = self.customers_tree.selection()
+        if not selected:
+            messagebox.showwarning("Ostrzeżenie", "Wybierz klienta do edycji")
+            return
+
+        customer_id = self.customers_tree.item(selected[0])["values"][0]
+        key = f"customer:{customer_id}"
+        customer = self.db.read("customers", key)
+
+        if customer:
+            dialog = self.CustomerDialog(self.root, "Edytuj klienta", customer)
+            if dialog.result:
+                if self.db.update("customers", key, dialog.result):
+                    messagebox.showinfo("Sukces", "Klient został zaktualizowany pomyślnie")
+                    self.refresh_customers()
+                else:
+                    messagebox.showerror("Błąd", "Nie udało się zaktualizować klienta")
+        else:
+            messagebox.showerror("Błąd", "Nie znaleziono klienta")
+
+    def delete_customer(self):
+        """Usunięcie klienta."""
+        selected = self.customers_tree.selection()
+        if not selected:
+            messagebox.showwarning("Ostrzeżenie", "Wybierz klienta do usunięcia")
+            return
+
+        customer_id = self.customers_tree.item(selected[0])["values"][0]
+        key = f"customer:{customer_id}"
+
+        if messagebox.askyesno("Potwierdzenie", "Czy na pewno chcesz usunąć tego klienta?"):
+            if self.db.delete("customers", key):
+                messagebox.showinfo("Sukces", "Klient został usunięty pomyślnie")
+                self.refresh_customers()
+            else:
+                messagebox.showerror("Błąd", "Nie udało się usunąć klienta")
 
     def init_users_ui(self):
         """Inicjalizacja interfejsu dla zakładki użytkownicy."""
