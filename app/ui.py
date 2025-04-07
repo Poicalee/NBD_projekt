@@ -32,7 +32,7 @@ class UserInterface():
         # Inicjalizacja interfejsów dla każdego typu dokumentu
         self.init_invoices_ui()
         self.init_transactions_ui()
-        self.init_customers_ui()
+        # self.init_customers_ui()
         self.init_users_ui()
 
     def init_invoices_ui(self):
@@ -165,6 +165,38 @@ class UserInterface():
         # Załadowanie początkowych danych
         self.refresh_customers()
 
+    def refresh_customers(self):
+        """Odświeżenie listy klientów"""
+        #Wyczyszczenie listy
+        for item in self.customers_tree.get_children():
+            self.customers_tree.delete(item)
+
+        #Pobranie kluczy klientów
+        keys = self.db.list_keys("customers")
+
+        for key in keys:
+            customer = self.db.get_customer("customers",key)
+            if customer:
+                self.customers_tree.insert("", tk.END, values=(
+                    key.replace("customer:", ""),
+                    customer.get("name", ""),
+                    customer.get("email", ""),
+                    customer.get("phone", ""),
+                    customer.get("city", "")
+                ))
+
+    def create_customer(self):
+        """Utworzenie nowego klienta."""
+        dialog = self.CustomerDialog(self.root,"Dodaj nowego klienta")
+        if dialog.result:
+            customer_id = dialog.result.get("customer_id")
+            key = f"customers/{customer_id}"
+            if self.db.create("customers", key. dialog.result):
+                messagebox.showinfo("Sukces","Klient został dodany pomyślnie")
+                self.refresh_customers()
+            else:
+                messagebox.showerror("Błąd","Nie udało się dodac klienta")
+
     def init_users_ui(self):
         """Inicjalizacja interfejsu dla zakładki użytkownicy."""
         # Główna ramka
@@ -176,11 +208,11 @@ class UserInterface():
         operations_frame.pack(fill=tk.X, pady=10)
 
         # Przyciski operacji CRUD
-        ttk.Button(operations_frame, text="Dodaj użytkownika", command=self.create_user).pack(side=tk.LEFT, padx=5)
-        ttk.Button(operations_frame, text="Szczegóły użytkownika", command=self.view_user).pack(side=tk.LEFT, padx=5)
-        ttk.Button(operations_frame, text="Edytuj użytkownika", command=self.edit_user).pack(side=tk.LEFT, padx=5)
-        ttk.Button(operations_frame, text="Usuń użytkownika", command=self.delete_user).pack(side=tk.LEFT, padx=5)
-        ttk.Button(operations_frame, text="Odśwież", command=self.refresh_users).pack(side=tk.LEFT, padx=5)
+        # ttk.Button(operations_frame, text="Dodaj użytkownika", command=self.create_user).pack(side=tk.LEFT, padx=5)
+        # ttk.Button(operations_frame, text="Szczegóły użytkownika", command=self.view_user).pack(side=tk.LEFT, padx=5)
+        # ttk.Button(operations_frame, text="Edytuj użytkownika", command=self.edit_user).pack(side=tk.LEFT, padx=5)
+        # ttk.Button(operations_frame, text="Usuń użytkownika", command=self.delete_user).pack(side=tk.LEFT, padx=5)
+        # ttk.Button(operations_frame, text="Odśwież", command=self.refresh_users).pack(side=tk.LEFT, padx=5)
 
         # Lista użytkowników
         list_frame = ttk.LabelFrame(frame, text="Lista użytkowników")
@@ -205,7 +237,7 @@ class UserInterface():
         self.users_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Załadowanie początkowych danych
-        self.refresh_users()
+        # self.refresh_users()
 
     # ==================== Metody dla faktur ====================
 
