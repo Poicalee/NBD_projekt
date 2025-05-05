@@ -1,7 +1,7 @@
 # app/data/dummy_data.py
 import uuid
 from datetime import datetime, timedelta
-from app.Database.database import RiakDatabase
+from app.database.database import RiakDatabase
 
 def create_dummy_data(db):
     """

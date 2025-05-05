@@ -2,9 +2,9 @@
 import tkinter as tk
 import requests
 import sys
-from app.Database.database import RiakDatabase
+from app.database.database import RiakDatabase
 from app.UI.ui import UserInterface
-from app.Data.dummy_data import create_dummy_data
+from app.data.dummy_data import create_dummy_data
 
 
 def test_connection(host, port):

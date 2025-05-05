@@ -62,7 +62,7 @@ app/
 │   └── user_dialog.py        # Dialog dodawania/edycji użytkownika
 ├── UI/
 │   └── ui.py            # Główny interfejs użytkownika
-├── data/
+├── Data/
 │   └── dummy_data.py    # Skrypt generujący przykładowe dane
 ├── methods/
 │   ├── customers_operations.py    # Operacje na klientach

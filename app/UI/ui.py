@@ -3,10 +3,10 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 
 # Import dialog classes
-from app.Dialog.customer_dialog import CustomerDialog
-from app.Dialog.invoice_dialog import InvoiceDialog
-from app.Dialog.transaction_dialog import TransactionDialog
-from app.Dialog.user_dialog import UserDialog
+from app.dialog.customer_dialog import CustomerDialog
+from app.dialog.invoice_dialog import InvoiceDialog
+from app.dialog.transaction_dialog import TransactionDialog
+from app.dialog.user_dialog import UserDialog
 
 # Import operation classes
 from app.methods.customers_operations import CustomerOperations
@@ -27,7 +27,7 @@ class UserInterface:
         self.root.title("System Zarządzania Księgowością")
         self.root.geometry("1000x600")
 
-        # Dialog classes
+        # dialog classes
         self.CustomerDialog = CustomerDialog
         self.InvoiceDialog = InvoiceDialog
         self.TransactionDialog = TransactionDialog
@@ -83,7 +83,7 @@ class UserInterface:
         list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
         # Treeview dla listy faktur
-        columns = ("ID", "Klient", "Data wystawienia", "Termin płatności", "Kwota", "Waluta", "Status")
+        columns = ("ID", "Klient", "data wystawienia", "Termin płatności", "Kwota", "Waluta", "Status")
         self.invoices_tree = ttk.Treeview(list_frame, columns=columns)
 
         self.invoices_tree.heading("#0", text="")
@@ -126,7 +126,7 @@ class UserInterface:
         list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
         # Treeview dla listy transakcji
-        columns = ("ID", "ID Faktury", "Data transakcji", "Kwota", "Metoda płatności", "Status")
+        columns = ("ID", "ID Faktury", "data transakcji", "Kwota", "Metoda płatności", "Status")
         self.transactions_tree = ttk.Treeview(list_frame, columns=columns)
 
         self.transactions_tree.heading("#0", text="")

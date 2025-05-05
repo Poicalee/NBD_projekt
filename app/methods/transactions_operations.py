@@ -1,7 +1,7 @@
 # app/methods/transactions_operations.py
 from tkinter import messagebox
 import tkinter as tk
-from app.Dialog.transaction_dialog import TransactionDialog
+from app.dialog.transaction_dialog import TransactionDialog
 
 class TransactionsOperations:
     def __init__(self, ui):

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 class InvoiceDialog:
-    """Dialog dodawania/edycji faktury."""
+    """dialog dodawania/edycji faktury."""
 
     def __init__(self, parent, title, db, invoice=None):
         self.result = None
@@ -56,8 +56,8 @@ class InvoiceDialog:
                     self.customer_combobox.current(idx)
                     break
 
-        # Data wystawienia
-        ttk.Label(frame, text="Data wystawienia:").grid(row=2, column=0, sticky="w", pady=5)
+        # data wystawienia
+        ttk.Label(frame, text="data wystawienia:").grid(row=2, column=0, sticky="w", pady=5)
         self.date = tk.StringVar(
             value=invoice.get("date", datetime.now().strftime("%Y-%m-%d")) if invoice else datetime.now().strftime(
                 "%Y-%m-%d"))

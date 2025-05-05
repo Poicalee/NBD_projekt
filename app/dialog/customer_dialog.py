@@ -1,11 +1,11 @@
-# app/Dialog/customer_dialog.py
+# app/dialog/customer_dialog.py
 import uuid
 from tkinter import ttk, messagebox
 import tkinter as tk
 from datetime import datetime
 
 class CustomerDialog:
-    """Dialog dodawania/edycji klienta."""
+    """dialog dodawania/edycji klienta."""
 
     def __init__(self, parent, title, customer=None):
         self.result = None

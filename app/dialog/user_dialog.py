@@ -1,4 +1,4 @@
-# app/Dialog/user_dialog.py
+# app/dialog/user_dialog.py
 import re
 import uuid
 from tkinter import messagebox, ttk
@@ -6,7 +6,7 @@ import tkinter as tk
 from datetime import datetime
 
 class UserDialog:
-    """Dialog dodawania/edycji użytkownika."""
+    """dialog dodawania/edycji użytkownika."""
 
     def __init__(self, parent, title, user=None):
         self.result = None

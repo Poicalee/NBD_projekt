@@ -1,7 +1,7 @@
 # app/methods/invoices_operations.py
 from tkinter import messagebox, ttk
 import tkinter as tk
-from app.Dialog.invoice_dialog import InvoiceDialog
+from app.dialog.invoice_dialog import InvoiceDialog
 
 class InvoiceOperations:
     def __init__(self, ui):
@@ -84,7 +84,7 @@ class InvoiceOperations:
             ttk.Label(basic_info, text="ID klienta:").grid(row=1, column=0, sticky="w", padx=5, pady=2)
             ttk.Label(basic_info, text=invoice.get("customer_id", "")).grid(row=1, column=1, sticky="w", padx=5, pady=2)
 
-            ttk.Label(basic_info, text="Data wystawienia:").grid(row=2, column=0, sticky="w", padx=5, pady=2)
+            ttk.Label(basic_info, text="data wystawienia:").grid(row=2, column=0, sticky="w", padx=5, pady=2)
             ttk.Label(basic_info, text=invoice.get("date", "")).grid(row=2, column=1, sticky="w", padx=5, pady=2)
 
             ttk.Label(basic_info, text="Termin płatności:").grid(row=3, column=0, sticky="w", padx=5, pady=2)

@@ -1,7 +1,7 @@
 # app/methods/users_operations.py
 from tkinter import messagebox
 import tkinter as tk
-from app.Dialog.user_dialog import UserDialog
+from app.dialog.user_dialog import UserDialog
 
 class UsersOperations:
     def __init__(self, ui):

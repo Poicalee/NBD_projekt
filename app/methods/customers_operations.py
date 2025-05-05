@@ -1,7 +1,7 @@
 # app/methods/customers_operations.py
 from tkinter import messagebox
 import tkinter as tk
-from app.Dialog.customer_dialog import CustomerDialog
+from app.dialog.customer_dialog import CustomerDialog
 
 class CustomerOperations:
     def __init__(self, ui):
