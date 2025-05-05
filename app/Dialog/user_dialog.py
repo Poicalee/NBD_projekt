@@ -1,8 +1,9 @@
+# app/Dialog/user_dialog.py
 import re
-from tkinter import messagebox
-
-import tk
-
+import uuid
+from tkinter import messagebox, ttk
+import tkinter as tk
+from datetime import datetime
 
 class UserDialog:
     """Dialog dodawania/edycji użytkownika."""
@@ -17,9 +18,7 @@ class UserDialog:
         dialog.transient(parent)
         dialog.resizable(False, False)
 
-        from tkinter import ttk
         frame = ttk.Frame(dialog, padding="20")
-        import tk
         frame.pack(fill=tk.BOTH, expand=True)
 
         # Pola formularza
@@ -27,7 +26,6 @@ class UserDialog:
                                                                                sticky="w", pady=(0, 15))
 
         # ID użytkownika
-        import uuid
         self.user_id = tk.StringVar(value=user.get("user_id", str(uuid.uuid4())) if user else str(uuid.uuid4()))
 
         # Nazwa użytkownika
@@ -99,7 +97,8 @@ class UserDialog:
             "username": self.username.get().strip(),
             "email": self.email.get().strip(),
             "role": self.role.get(),
-            "is_active": self.is_active.get()
+            "is_active": self.is_active.get(),
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
 
         # Dodanie hasła dla nowego użytkownika

@@ -1,6 +1,7 @@
+# app/methods/users_operations.py
 from tkinter import messagebox
 import tkinter as tk
-
+from app.Dialog.user_dialog import UserDialog
 
 class UsersOperations:
     def __init__(self, ui):
@@ -19,7 +20,7 @@ class UsersOperations:
         for key in keys:
             user = self.db.read("users", key)
             if user:
-                status = "Aktywny" if user.get("is_acitve", False) else "Niekontywny"
+                status = "Aktywny" if user.get("is_active", False) else "Nieaktywny"
                 self.ui.users_tree.insert("", tk.END, values=(
                     key.replace("user:", ""),
                     user.get("username", ""),
@@ -30,10 +31,10 @@ class UsersOperations:
 
     def create_user(self):
         """Utworzenie nowego użytkownika"""
-        dialog = self.ui.UserDialog(self.root, "Dodaj nowego użytkownika")
+        dialog = UserDialog(self.root, "Dodaj nowego użytkownika")
         if dialog.result:
             user_id = dialog.result.get("user_id")
-            key = f"user/{user_id}"
+            key = f"user:{user_id}"
             if self.db.create("users", key, dialog.result):
                 messagebox.showinfo("Sukces", "Użytkownik został dodany pomyślnie")
                 self.refresh_users()
@@ -73,7 +74,7 @@ class UsersOperations:
         user = self.db.read("users", key)
 
         if user:
-            dialog = self.ui.UserDialog(self.root, "Edytuj użytkownika", user)
+            dialog = UserDialog(self.root, "Edytuj użytkownika", user)
             if dialog.result:
                 if self.db.update("users", key, dialog.result):
                     messagebox.showinfo("Sukces", "Użytkownik został zaktualizowany pomyślnie")

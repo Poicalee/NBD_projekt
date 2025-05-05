@@ -1,6 +1,7 @@
+# app/methods/transactions_operations.py
 from tkinter import messagebox
 import tkinter as tk
-
+from app.Dialog.transaction_dialog import TransactionDialog
 
 class TransactionsOperations:
     def __init__(self, ui):
@@ -31,7 +32,6 @@ class TransactionsOperations:
 
     def create_transaction(self):
         """Utworzenie nowej transakcji."""
-        from app.UI.ui import TransactionDialog
         dialog = TransactionDialog(self.root, "Dodaj nową transakcję", self.db)
         if dialog.result:
             transaction_id = dialog.result.get("transaction_id")
@@ -79,7 +79,6 @@ class TransactionsOperations:
         transaction = self.db.read("transactions", key)
 
         if transaction:
-            from app.UI.ui import TransactionDialog
             dialog = TransactionDialog(self.root, "Edytuj transakcję", self.db, transaction)
             if dialog.result:
                 if self.db.update("transactions", key, dialog.result):

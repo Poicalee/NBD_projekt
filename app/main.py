@@ -1,8 +1,10 @@
+# app/main.py
 import tkinter as tk
 import requests
+import sys
 from app.Database.database import RiakDatabase
 from app.UI.ui import UserInterface
-
+from app.Data.dummy_data import create_dummy_data
 
 
 def test_connection(host, port):
@@ -33,6 +35,10 @@ def main():
 
     # Inicjalizacja połączenia z bazą danych
     db = RiakDatabase(host=host, port=port)
+
+    # Sprawdzenie czy trzeba wygenerować przykładowe dane
+    if len(sys.argv) > 1 and sys.argv[1] == "--init-data":
+        create_dummy_data(db)
 
     # Utworzenie interfejsu użytkownika
     root = tk.Tk()

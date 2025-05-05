@@ -1,6 +1,7 @@
+# app/methods/customers_operations.py
 from tkinter import messagebox
 import tkinter as tk
-
+from app.Dialog.customer_dialog import CustomerDialog
 
 class CustomerOperations:
     def __init__(self, ui):
@@ -30,7 +31,7 @@ class CustomerOperations:
 
     def create_customer(self):
         """Utworzenie nowego klienta."""
-        dialog = self.ui.CustomerDialog(self.root, "Dodaj nowego klienta")
+        dialog = CustomerDialog(self.root, "Dodaj nowego klienta")
         if dialog.result:
             customer_id = dialog.result.get("customer_id")
             key = f"customer:{customer_id}"
@@ -44,11 +45,11 @@ class CustomerOperations:
         """Wyświetlnie szczegółów klienta."""
         selected = self.ui.customers_tree.selection()
         if not selected:
-            messagebox.showwarning("Ostrzeżenie", "Wybierz klienta do wyswietlnia")
+            messagebox.showwarning("Ostrzeżenie", "Wybierz klienta do wyświetlenia")
             return
 
         customer_id = self.ui.customers_tree.item(selected[0])["values"][0]
-        key = f"customers/{customer_id}"
+        key = f"customer:{customer_id}"
         customer = self.db.read("customers", key)
 
         if customer:
@@ -75,7 +76,7 @@ class CustomerOperations:
         customer = self.db.read("customers", key)
 
         if customer:
-            dialog = self.ui.CustomerDialog(self.root, "Edytuj klienta", customer)
+            dialog = CustomerDialog(self.root, "Edytuj klienta", customer)
             if dialog.result:
                 if self.db.update("customers", key, dialog.result):
                     messagebox.showinfo("Sukces", "Klient został zaktualizowany pomyślnie")

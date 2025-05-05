@@ -1,6 +1,7 @@
+# app/methods/invoices_operations.py
 from tkinter import messagebox, ttk
 import tkinter as tk
-
+from app.Dialog.invoice_dialog import InvoiceDialog
 
 class InvoiceOperations:
     def __init__(self, ui):
@@ -23,7 +24,7 @@ class InvoiceOperations:
                 # Pobranie nazwy klienta
                 customer_name = "Nieznany"
                 if "customer_id" in invoice:
-                    customer = self.db.read("customers", "customer:" + invoice["customer_id"])
+                    customer = self.db.read("customers", f"customer:{invoice['customer_id']}")
                     if customer:
                         customer_name = customer.get("name", "Nieznany")
 
@@ -39,7 +40,6 @@ class InvoiceOperations:
 
     def create_invoice(self):
         """Utworzenie nowej faktury."""
-        from app.UI.ui import InvoiceDialog
         dialog = InvoiceDialog(self.root, "Dodaj nową fakturę", self.db)
         if dialog.result:
             invoice_id = dialog.result.get("invoice_id")
@@ -50,7 +50,6 @@ class InvoiceOperations:
             else:
                 messagebox.showerror("Błąd", "Nie udało się dodać faktury")
 
-    # noinspection PyArgumentList
     def view_invoice(self):
         """Wyświetlenie szczegółów faktury."""
         selected = self.ui.invoices_tree.selection()
@@ -158,7 +157,6 @@ class InvoiceOperations:
         invoice = self.db.read("invoices", key)
 
         if invoice:
-            from app.UI.ui import InvoiceDialog
             dialog = InvoiceDialog(self.root, "Edytuj fakturę", self.db, invoice)
             if dialog.result:
                 if self.db.update("invoices", key, dialog.result):

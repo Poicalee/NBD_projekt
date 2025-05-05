@@ -1,21 +1,24 @@
+# app/UI/ui.py
 import tkinter as tk
 from tkinter import ttk, messagebox
-import uuid
-from datetime import datetime
-import re
+
+# Import dialog classes
+from app.Dialog.customer_dialog import CustomerDialog
+from app.Dialog.invoice_dialog import InvoiceDialog
+from app.Dialog.transaction_dialog import TransactionDialog
+from app.Dialog.user_dialog import UserDialog
+
+# Import operation classes
 from app.methods.customers_operations import CustomerOperations
 from app.methods.invoices_operations import InvoiceOperations
 from app.methods.transactions_operations import TransactionsOperations
 from app.methods.users_operations import UsersOperations
-from app.Dialog.transaction_dialog import TransactionDialog
-from app.Dialog.invoice_dialog import InvoiceDialog
 
-# noinspection PyArgumentList
+
 class UserInterface:
     def __init__(self, root, db):
         """Inicjalizacja interfejsu użytkownika systemu księgowego."""
         self.users_tree = None
-        self.customers_tree = None
         self.customers_tree = None
         self.transactions_tree = None
         self.invoices_tree = None
@@ -23,6 +26,12 @@ class UserInterface:
         self.db = db
         self.root.title("System Zarządzania Księgowością")
         self.root.geometry("1000x600")
+
+        # Dialog classes
+        self.CustomerDialog = CustomerDialog
+        self.InvoiceDialog = InvoiceDialog
+        self.TransactionDialog = TransactionDialog
+        self.UserDialog = UserDialog
 
         # Zakładki dla różnych typów dokumentów
         self.notebook = ttk.Notebook(self.root)
@@ -40,13 +49,16 @@ class UserInterface:
         self.notebook.add(self.users_tab, text="Użytkownicy")
 
         # Inicjalizacja interfejsów dla każdego typu dokumentu
-        self.operations = InvoiceOperations(self)
-        self.init_invoices_ui()
-        self.operations = TransactionsOperations(self)
-        self.init_transactions_ui()
-        self.operations = CustomerOperations(self)
+        self.customers_operations = CustomerOperations(self)
         self.init_customers_ui()
-        self.operations = UsersOperations(self)
+
+        self.invoices_operations = InvoiceOperations(self)
+        self.init_invoices_ui()
+
+        self.transactions_operations = TransactionsOperations(self)
+        self.init_transactions_ui()
+
+        self.users_operations = UsersOperations(self)
         self.init_users_ui()
 
     def init_invoices_ui(self):
@@ -60,16 +72,11 @@ class UserInterface:
         operations_frame.pack(fill=tk.X, pady=10)
 
         # Przyciski operacji CRUD
-        ttk.Button(operations_frame, text="Dodaj fakturę", command=self.operations.create_invoice).pack(side=tk.LEFT,
-                                                                                                        padx=5)
-        ttk.Button(operations_frame, text="Szczegóły faktury", command=self.operations.view_invoice).pack(side=tk.LEFT,
-                                                                                                          padx=5)
-        ttk.Button(operations_frame, text="Edytuj fakturę", command=self.operations.edit_invoice).pack(side=tk.LEFT,
-                                                                                                       padx=5)
-        ttk.Button(operations_frame, text="Usuń fakturę", command=self.operations.delete_invoice).pack(side=tk.LEFT,
-                                                                                                       padx=5)
-        ttk.Button(operations_frame, text="Odśwież", command=self.operations.refresh_invoices).pack(side=tk.LEFT,
-                                                                                                    padx=5)
+        ttk.Button(operations_frame, text="Dodaj fakturę", command=self.invoices_operations.create_invoice).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Szczegóły faktury", command=self.invoices_operations.view_invoice).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Edytuj fakturę", command=self.invoices_operations.edit_invoice).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Usuń fakturę", command=self.invoices_operations.delete_invoice).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Odśwież", command=self.invoices_operations.refresh_invoices).pack(side=tk.LEFT, padx=5)
 
         # Lista faktur
         list_frame = ttk.LabelFrame(frame, text="Lista faktur")
@@ -95,7 +102,7 @@ class UserInterface:
         self.invoices_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Załadowanie początkowych danych
-        self.operations.refresh_invoices()
+        self.invoices_operations.refresh_invoices()
 
     def init_transactions_ui(self):
         """Inicjalizacja interfejsu dla zakładki transakcje."""
@@ -108,18 +115,11 @@ class UserInterface:
         operations_frame.pack(fill=tk.X, pady=10)
 
         # Przyciski operacji CRUD
-        ttk.Button(operations_frame, text="Dodaj transakcję", command=self.operations.create_transaction).pack(
-            side=tk.LEFT,
-            padx=5)
-        ttk.Button(operations_frame, text="Szczegóły transakcji", command=self.operations.view_transaction).pack(
-            side=tk.LEFT,
-            padx=5)
-        ttk.Button(operations_frame, text="Edytuj transakcję", command=self.operations.edit_transaction).pack(
-            side=tk.LEFT, padx=5)
-        ttk.Button(operations_frame, text="Usuń transakcję", command=self.operations.delete_transaction).pack(
-            side=tk.LEFT, padx=5)
-        ttk.Button(operations_frame, text="Odśwież", command=self.operations.refresh_transactions).pack(side=tk.LEFT,
-                                                                                                        padx=5)
+        ttk.Button(operations_frame, text="Dodaj transakcję", command=self.transactions_operations.create_transaction).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Szczegóły transakcji", command=self.transactions_operations.view_transaction).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Edytuj transakcję", command=self.transactions_operations.edit_transaction).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Usuń transakcję", command=self.transactions_operations.delete_transaction).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Odśwież", command=self.transactions_operations.refresh_transactions).pack(side=tk.LEFT, padx=5)
 
         # Lista transakcji
         list_frame = ttk.LabelFrame(frame, text="Lista transakcji")
@@ -144,7 +144,7 @@ class UserInterface:
         self.transactions_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Załadowanie początkowych danych
-        self.operations.refresh_transactions()
+        self.transactions_operations.refresh_transactions()
 
     def init_customers_ui(self):
         """Inicjalizacja interfejsu dla zakładki klienci."""
@@ -157,16 +157,11 @@ class UserInterface:
         operations_frame.pack(fill=tk.X, pady=10)
 
         # Przyciski operacji CRUD
-        ttk.Button(operations_frame, text="Dodaj klienta", command=self.operations.create_customer).pack(side=tk.LEFT,
-                                                                                                         padx=5)
-        ttk.Button(operations_frame, text="Szczegóły klienta", command=self.operations.view_customers).pack(
-            side=tk.LEFT, padx=5)
-        ttk.Button(operations_frame, text="Edytuj klienta", command=self.operations.edit_customer).pack(side=tk.LEFT,
-                                                                                                        padx=5)
-        ttk.Button(operations_frame, text="Usuń klienta", command=self.operations.delete_customer).pack(side=tk.LEFT,
-                                                                                                        padx=5)
-        ttk.Button(operations_frame, text="Odśwież", command=self.operations.refresh_customers).pack(side=tk.LEFT,
-                                                                                                     padx=5)
+        ttk.Button(operations_frame, text="Dodaj klienta", command=self.customers_operations.create_customer).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Szczegóły klienta", command=self.customers_operations.view_customers).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Edytuj klienta", command=self.customers_operations.edit_customer).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Usuń klienta", command=self.customers_operations.delete_customer).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Odśwież", command=self.customers_operations.refresh_customers).pack(side=tk.LEFT, padx=5)
 
         # Lista klientów
         list_frame = ttk.LabelFrame(frame, text="Lista klientów")
@@ -192,7 +187,7 @@ class UserInterface:
         self.customers_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Załadowanie początkowych danych
-        self.operations.refresh_customers()
+        self.customers_operations.refresh_customers()
 
     def init_users_ui(self):
         """Inicjalizacja interfejsu dla zakładki użytkownicy."""
@@ -205,22 +200,18 @@ class UserInterface:
         operations_frame.pack(fill=tk.X, pady=10)
 
         # Przyciski operacji CRUD
-        ttk.Button(operations_frame, text="Dodaj użytkownika", command=self.operations.create_user).pack(side=tk.LEFT,
-                                                                                                         padx=5)
-        ttk.Button(operations_frame, text="Szczegóły użytkownika", command=self.operations.view_user).pack(side=tk.LEFT,
-                                                                                                           padx=5)
-        ttk.Button(operations_frame, text="Edytuj użytkownika", command=self.operations.edit_user).pack(side=tk.LEFT,
-                                                                                                        padx=5)
-        ttk.Button(operations_frame, text="Usuń użytkownika", command=self.operations.delete_user).pack(side=tk.LEFT,
-                                                                                                        padx=5)
-        ttk.Button(operations_frame, text="Odśwież", command=self.operations.refresh_users).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Dodaj użytkownika", command=self.users_operations.create_user).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Szczegóły użytkownika", command=self.users_operations.view_user).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Edytuj użytkownika", command=self.users_operations.edit_user).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Usuń użytkownika", command=self.users_operations.delete_user).pack(side=tk.LEFT, padx=5)
+        ttk.Button(operations_frame, text="Odśwież", command=self.users_operations.refresh_users).pack(side=tk.LEFT, padx=5)
 
         # Lista użytkowników
         list_frame = ttk.LabelFrame(frame, text="Lista użytkowników")
         list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
         # Treeview dla listy użytkowników
-        columns = ("ID", "Nazwa użytkownika", "Rola", "Email", "Data utworzenia")
+        columns = ("ID", "Nazwa użytkownika", "Email", "Rola", "Status")
         self.users_tree = ttk.Treeview(list_frame, columns=columns)
 
         self.users_tree.heading("#0", text="")
@@ -238,4 +229,4 @@ class UserInterface:
         self.users_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Załadowanie początkowych danych
-        self.operations.refresh_users()
+        self.users_operations.refresh_users()

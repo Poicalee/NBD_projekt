@@ -1,9 +1,8 @@
+# app/Dialog/customer_dialog.py
 import uuid
 from tkinter import ttk, messagebox
-
-import datetime
-import tk
-
+import tkinter as tk
+from datetime import datetime
 
 class CustomerDialog:
     """Dialog dodawania/edycji klienta."""
